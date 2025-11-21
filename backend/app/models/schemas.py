@@ -1,15 +1,8 @@
-"""Pydantic schemas for API requests and responses (FULLY UPDATED FOR V3 PIPELINE)
-"""
-
 from typing import Optional, List, Dict, Any
 from pydantic import BaseModel, Field, validator
 from datetime import datetime
 from enum import Enum
 
-
-# ---------------------------------------------------------
-# ENUMS
-# ---------------------------------------------------------
 
 class AvailabilityStatus(str, Enum):
     IN_STOCK = "in_stock"
@@ -24,23 +17,10 @@ class RiskLevel(str, Enum):
     HIGH = "high"
 
 
-# ---------------------------------------------------------
-# PRODUCT INPUT SCHEMA (FULL FEATURE SET)
-# ---------------------------------------------------------
+
 
 class ProductInput(BaseModel):
-    """
-    Full product schema used by all ML models.
-
-    Compatible with training pipeline V3:
-    FEATURES = [
-        price, cost, shipping_cost, duties,
-        lead_time_days, stock, inventory, quantity,
-        demand, past_sales,
-        weight_kg, length_cm, width_cm, height_cm,
-        margin, supplier_reliability_score
-    ]
-    """
+    
 
     # Required
     sku: str
@@ -51,7 +31,7 @@ class ProductInput(BaseModel):
     lead_time_days: int
     availability: AvailabilityStatus
 
-    # Optional but used by ML models
+   
     duties: Optional[float] = 0.0
 
     stock: Optional[float] = 0.0
@@ -67,7 +47,7 @@ class ProductInput(BaseModel):
 
     supplier_reliability_score: Optional[float] = 0.5  # middle default
 
-    # Optional text fields for clustering
+   
     description: Optional[str] = None
     category: Optional[str] = None
     title: Optional[str] = None
@@ -103,9 +83,7 @@ class ProductInput(BaseModel):
         }
 
 
-# ---------------------------------------------------------
-# BULK PRODUCT INPUT
-# ---------------------------------------------------------
+
 
 class BulkProductInput(BaseModel):
     products: List[ProductInput]
@@ -119,9 +97,7 @@ class BulkProductInput(BaseModel):
         return v
 
 
-# ---------------------------------------------------------
-# REQUEST SCHEMAS
-# ---------------------------------------------------------
+
 
 class ValidationRequest(BaseModel):
     file_id: str
@@ -141,9 +117,7 @@ class StockoutRiskRequest(BaseModel):
     products: List[ProductInput]
 
 
-# ---------------------------------------------------------
-# RESPONSE SCHEMAS
-# ---------------------------------------------------------
+
 
 class ValidationError(BaseModel):
     field: str

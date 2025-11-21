@@ -1,5 +1,3 @@
-"""Logging configuration"""
-
 import logging
 import sys
 from pathlib import Path
@@ -7,7 +5,7 @@ from backend.app.core.config import settings
 
 
 def setup_logger(name: str = "dropsmart", level: str = "INFO") -> logging.Logger:
-    """Setup and configure logger"""
+    
     
     logger = logging.getLogger(name)
     logger.setLevel(getattr(logging, level.upper()))

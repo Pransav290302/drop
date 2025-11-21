@@ -1,8 +1,3 @@
-"""
-Stockout Risk Model — Predicts probability of high stockout risk
-Course-Aligned (RandomForest + SHAP)
-"""
-
 import pandas as pd
 import numpy as np
 import shap
@@ -13,10 +8,7 @@ from ml.models.base_model import BaseModel
 
 
 class StockoutRiskModel(BaseModel):
-    """
-    Predicts probability of HIGH stockout risk.
-    Fully compatible with BaseModel (implements predict()).
-    """
+   
 
     def __init__(self, config=None):
         super().__init__(config)
@@ -32,11 +24,9 @@ class StockoutRiskModel(BaseModel):
         self.feature_names: list[str] = []
         self.is_trained = False
 
-    # ============================================================
-    # TRAIN
-    # ============================================================
+ 
     def train(self, X: pd.DataFrame, y: pd.Series):
-        """Train RF classifier and SHAP explainer."""
+       
         self.feature_names = list(X.columns)
 
         self.model.fit(X, y)
@@ -50,34 +40,26 @@ class StockoutRiskModel(BaseModel):
         # SHAP explainer
         self.explainer = shap.TreeExplainer(self.model)
 
-    # ============================================================
-    # REQUIRED BY BaseModel
-    # ============================================================
+
     def predict(self, X: pd.DataFrame):
-        """
-        Required abstract method → returns hard labels (0/1).
-        """
+        
         self._check_ready()
         X_checked = self._align(X)
         return self.model.predict(X_checked)
 
-    # ============================================================
-    # PROBABILITY PREDICTION
-    # ============================================================
+
     def predict_proba(self, X: pd.DataFrame):
-        """Return probability of high stockout risk."""
+       
         self._check_ready()
         X_checked = self._align(X)
         return self.model.predict_proba(X_checked)[:, 1]
 
-    # For pipeline service compatibility
+  
     def predict_batch(self, X: pd.DataFrame):
-        """Alias for pipeline service."""
+       
         return self.predict_proba(X)
 
-    # ============================================================
-    # SHAP EXPLANATION
-    # ============================================================
+
     def explain(self, X: pd.DataFrame):
         self._check_ready()
         X_checked = self._align(X)
@@ -110,21 +92,13 @@ class StockoutRiskModel(BaseModel):
             "shap_values": shap_values.tolist()
         }
 
-    # ============================================================
-    # INTERNAL HELPERS
-    # ============================================================
+
     def _check_ready(self):
         if not self.is_trained:
             raise RuntimeError("StockoutRiskModel must be trained first.")
 
     def _align(self, X: pd.DataFrame):
-        """
-        Ensure X columns match training features exactly.
-        Fill missing columns with 0.0.
-        Ignore extra columns.
-        Prevents warnings:
-        'X does not have valid feature names'
-        """
+      
         X = X.copy()
 
         for col in self.feature_names:

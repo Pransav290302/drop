@@ -1,5 +1,3 @@
-"""Data validation module"""
-
 import pandas as pd
 from typing import Dict, List, Tuple, Any
 import logging
@@ -9,15 +7,7 @@ logger = logging.getLogger(__name__)
 
 
 def validate_schema(df: pd.DataFrame) -> Tuple[bool, List[str], Dict[str, Any]]:
-    """
-    Validate DataFrame against required schema
     
-    Args:
-        df: DataFrame to validate
-        
-    Returns:
-        Tuple of (is_valid, errors, warnings)
-    """
     schema_config = get_schema_config()
     required_fields = schema_config.get("required_fields", [])
     
@@ -29,7 +19,7 @@ def validate_schema(df: pd.DataFrame) -> Tuple[bool, List[str], Dict[str, Any]]:
     if missing_fields:
         errors.append(f"Missing required fields: {', '.join(missing_fields)}")
     
-    # Check optional fields
+   
     optional_fields = schema_config.get("optional_fields", [])
     missing_optional = [field for field in optional_fields if field not in df.columns]
     if missing_optional:
@@ -41,15 +31,7 @@ def validate_schema(df: pd.DataFrame) -> Tuple[bool, List[str], Dict[str, Any]]:
 
 
 def validate_field_types(df: pd.DataFrame) -> Tuple[bool, List[str]]:
-    """
-    Validate field types according to schema
     
-    Args:
-        df: DataFrame to validate
-        
-    Returns:
-        Tuple of (is_valid, errors)
-    """
     schema_config = get_schema_config()
     field_validation = schema_config.get("field_validation", {})
     

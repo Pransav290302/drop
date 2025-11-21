@@ -1,8 +1,3 @@
-"""
-Viability Model — Predicts probability of sale within 30 days
-Course-Aligned (RandomForest + SHAP)
-"""
-
 import pandas as pd
 import numpy as np
 import shap
@@ -12,13 +7,7 @@ from ml.models.base_model import BaseModel
 
 
 class ViabilityModel(BaseModel):
-    """
-    Predicts P(sale within 30 days).
-    Course-aligned:
-    - RandomForestClassifier
-    - SHAP TreeExplainer
-    """
-
+   
     def __init__(self, config=None):
         super().__init__(config)
 
@@ -32,9 +21,7 @@ class ViabilityModel(BaseModel):
         self.explainer = None
         self.feature_names = []
 
-    # ============================================================
-    # TRAIN MODEL
-    # ============================================================
+ 
     def train(self, X: pd.DataFrame, y: pd.Series):
         self.feature_names = list(X.columns)
 
@@ -42,19 +29,19 @@ class ViabilityModel(BaseModel):
         self.model.fit(X, y)
         self.is_trained = True
 
-        # SHAP TreeExplainer (works perfectly with RandomForest)
+      
         self.explainer = shap.TreeExplainer(self.model)
 
-        # Handle case where only a single class is present in y
+      # Handle case where only a single class is present in y
         unique_classes = np.unique(y)
         proba = self.model.predict_proba(X)
         if proba.shape[1] >= 2:
             preds = proba[:, 1]
         else:
-            # Single-column probabilities; use that column directly
+           
             preds = proba[:, 0]
 
-        # AUC requires at least two classes; avoid calling it when only one class
+      
         if unique_classes.size < 2:
             print(
                 "✔ Viability model trained "
@@ -64,34 +51,26 @@ class ViabilityModel(BaseModel):
             auc = roc_auc_score(y, preds)
             print(f"✔ Viability model trained (AUC = {auc:.4f})")
 
-    # ============================================================
-    # PREDICT LABEL
-    # ============================================================
+  
     def predict(self, X: pd.DataFrame):
         self._check_features(X)
         return self.model.predict(X)
 
-    # ============================================================
-    # PREDICT PROBABILITY
-    # ============================================================
+
     def predict_proba(self, X: pd.DataFrame):
         self._check_features(X.copy())
         return self.model.predict_proba(X)[:, 1]
     
-    # ============================================================
-    # PREDICT VIABILITY SCORE (alias for predict_proba)
-    # ============================================================
+
     def predict_viability_score(self, X: pd.DataFrame):
-        """Predict viability score (probability of sale within 30 days)"""
+        
         return self.predict_proba(X)
 
-    # ============================================================
-    # EXPLAINABILITY (SHAP)
-    # ============================================================
+
     def explain(self, X: pd.DataFrame):
         self._check_features(X)
 
-        # SHAP v0.44+ returns NUMPY ARRAY for RF
+       
         shap_values = self.explainer.shap_values(X)
 
         base_value = self.explainer.expected_value
@@ -119,9 +98,7 @@ class ViabilityModel(BaseModel):
             "shap_values": shap_values.tolist()
         }
 
-    # ============================================================
-    # INTERNAL CHECK
-    # ============================================================
+
     def _check_features(self, X: pd.DataFrame):
         missing = set(self.feature_names) - set(X.columns)
         extra = set(X.columns) - set(self.feature_names)

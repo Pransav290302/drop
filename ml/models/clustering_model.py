@@ -1,8 +1,3 @@
-"""
-Clustering Model — TF-IDF + KMeans
-Groups similar products for analog-based predictions
-"""
-
 import pickle
 from pathlib import Path
 from sklearn.cluster import KMeans
@@ -10,7 +5,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 
 
 def prepare_texts_for_clustering(products):
-    """Extract clean text for clustering"""
+   
     texts = []
     for p in products:
         text = (
@@ -23,7 +18,7 @@ def prepare_texts_for_clustering(products):
 
 
 class ClusteringModel:
-    """TF-IDF + KMeans clustering"""
+   
 
     def __init__(self, config=None):
         self.config = config or {"n_clusters": 6}
@@ -43,11 +38,11 @@ class ClusteringModel:
         n_samples = X_vec.shape[0]
         n_clusters_cfg = int(self.config.get("n_clusters", 6))
 
-        # Ensure we don't request more clusters than samples
+       
         n_clusters = max(1, min(n_clusters_cfg, n_samples))
 
         if n_clusters != n_clusters_cfg:
-            # Update internal model to use the adjusted number of clusters
+            
             self.config["n_clusters"] = n_clusters
             self.model = KMeans(
                 n_clusters=n_clusters,

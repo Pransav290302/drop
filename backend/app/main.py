@@ -1,5 +1,3 @@
-"""FastAPI application entry point"""
-
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
@@ -30,7 +28,7 @@ app.include_router(router, prefix=settings.api_v1_prefix)
 
 @app.get("/")
 async def root():
-    """Root endpoint"""
+   
     return {
         "message": "DropSmart API",
         "version": settings.app_version,
@@ -41,7 +39,7 @@ async def root():
 
 @app.get("/health")
 async def health_check():
-    """Health check endpoint"""
+   
     return {
         "status": "healthy",
         "service": "dropsmart-api",
@@ -51,7 +49,7 @@ async def health_check():
 
 @app.exception_handler(Exception)
 async def global_exception_handler(request, exc):
-    """Global exception handler"""
+   
     return JSONResponse(
         status_code=500,
         content={

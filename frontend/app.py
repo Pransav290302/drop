@@ -1,4 +1,4 @@
-"""DropSmart Streamlit Application - Complete and Runnable"""
+
 
 import streamlit as st
 import pandas as pd
@@ -9,23 +9,22 @@ import logging
 import plotly.graph_objects as go
 import plotly.express as px
 
-# Configure logging
+
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Import configuration and API client
 try:
     from frontend.config import config
     from frontend.utils.api_client import api_client
 except ImportError:
-    # Fallback if running directly
+
     import os
     import sys
     sys.path.insert(0, str(Path(__file__).parent.parent))
     from frontend.config import config
     from frontend.utils.api_client import api_client
 
-# Page configuration
+
 st.set_page_config(
     page_title=config.PAGE_TITLE,
     page_icon=config.PAGE_ICON,
@@ -33,7 +32,7 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
-# ----------- PREMIUM AI REMEMBERED CSS ----------
+
 st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
@@ -94,43 +93,59 @@ select, .stSelectbox>div>div>div {background:rgba(255,255,255,0.08)!important;co
     color: rgba(255,255,255,0.75);
     font-size: 0.95rem;
 }
-.nav-radio div[data-baseweb="radio"] {
-    display: flex !important;
-    gap: 0.75rem;
-    flex-wrap: wrap;
+.custom-navbar {
+    background: rgba(30, 35, 70, 0.8);
+    border-radius: 1rem;
+    padding: 0.75rem 1rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
 }
-.nav-radio label {
-    background: rgba(255,255,255,0.04);
-    border-radius: 999px;
-    padding: 0.45rem 1.3rem;
-    border: 1px solid rgba(255,255,255,0.08);
-    transition: all 0.2s ease;
-    cursor: pointer;
-    box-shadow: inset 0 0 0 0 rgba(255,255,255,0.2);
+.custom-navbar .stButton {
+    flex: 1;
 }
-.nav-radio label:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(0,0,0,0.35);
-    border-color: rgba(255,255,255,0.25);
-}
-.nav-radio label:has(div[role="radio"][aria-checked="true"]) {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    border-color: transparent;
-    box-shadow: 0 10px 25px rgba(118,75,162,0.4);
-}
-.nav-radio label p {
-    margin: 0 !important;
+.custom-navbar .stButton > button {
+    background: rgba(40, 45, 80, 0.6) !important;
+    border: none !important;
+    border-radius: 0.6rem !important;
+    padding: 0.65rem 1rem !important;
     color: #d3d8ff !important;
+    font-size: 0.9rem !important;
+    font-weight: 500 !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    box-shadow: none !important;
+    width: 100% !important;
+    height: auto !important;
+    min-height: auto !important;
 }
-.nav-radio label:has(div[role="radio"][aria-checked="true"]) p {
+.custom-navbar .stButton > button:hover {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4) !important;
     color: #ffffff !important;
-    font-weight: 600;
+    font-weight: 600 !important;
+}
+.custom-navbar .stButton > button:focus {
+    box-shadow: none !important;
+    outline: none !important;
+}
+.custom-navbar .stButton > button:active {
+    transform: translateY(0) !important;
+}
+.custom-navbar button[key="clear_session_top"] {
+    background: rgba(60, 65, 100, 0.6) !important;
+    font-size: 0.8rem !important;
+    padding: 0.5rem 0.8rem !important;
+}
+.custom-navbar button[key="clear_session_top"]:hover {
+    background: rgba(100, 105, 140, 0.8) !important;
 }
 </style>
 """, unsafe_allow_html=True)
-# -------- END CSS --------
 
-# ---- HEADER ----
 st.markdown("""
 <div class="ai-header">
     <h1>🤖 DropSmart</h1>
@@ -138,7 +153,7 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# Initialize session state
+
 if "file_id" not in st.session_state:
     st.session_state.file_id = None
 if "uploaded_file" not in st.session_state:
@@ -151,7 +166,9 @@ if "selected_sku" not in st.session_state:
     st.session_state.selected_sku = None
 
 
-# Top navigation bar
+if "current_page" not in st.session_state:
+    st.session_state.current_page = "🏠 Home / Upload"
+
 nav_options = [
     "🏠 Home / Upload",
     "📊 Dashboard",
@@ -160,42 +177,56 @@ nav_options = [
     "📥 Export CSV",
 ]
 
-with st.container():
-    nav_col, status_col = st.columns([4, 1.5])
-    
-    with nav_col:
-        st.markdown("### Navigation")
-        st.markdown('<div class="nav-radio">', unsafe_allow_html=True)
-        page = st.radio(
-            "Select Page",
-            nav_options,
-            key="page_selector",
-            horizontal=True,
-            label_visibility="collapsed",
-        )
-        st.markdown('</div>', unsafe_allow_html=True)
-    
-    with status_col:
-        st.markdown("### Status")
-        try:
-            if api_client.health_check():
-                st.success("✅ API Connected")
-            else:
-                st.error("❌ API Disconnected")
-                st.caption(f"API URL: {config.API_BASE_URL}")
-        except Exception as e:
-            st.error("❌ API Connection Error")
-            st.caption(f"API URL: {config.API_BASE_URL}")
-            logger.error(f"API health check failed: {e}")
-        
-        if st.button("🔄 Clear Session", key="clear_session_top"):
-            for key in list(st.session_state.keys()):
-                del st.session_state[key]
+st.markdown(f'''
+<script>
+function setActiveNav() {{
+    const activePage = "{st.session_state.current_page}";
+    const buttons = document.querySelectorAll('.custom-navbar button:not([key="clear_session_top"])');
+    buttons.forEach(btn => {{
+        if (btn.textContent.trim() === activePage) {{
+            btn.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+            btn.style.color = '#ffffff';
+            btn.style.fontWeight = '600';
+            btn.style.boxShadow = '0 6px 20px rgba(102, 126, 234, 0.5)';
+        }}
+    }});
+}}
+if (document.readyState === 'loading') {{
+    document.addEventListener('DOMContentLoaded', setActiveNav);
+}} else {{
+    setActiveNav();
+}}
+setTimeout(setActiveNav, 100);
+</script>
+<div class="custom-navbar">
+''', unsafe_allow_html=True)
+
+nav_cols = st.columns([1, 1, 1, 1, 1, 2])
+
+for idx, nav_item in enumerate(nav_options):
+    with nav_cols[idx]:
+        if st.button(nav_item, key=f"nav_{idx}", use_container_width=True):
+            st.session_state.current_page = nav_item
             st.rerun()
 
+with nav_cols[5]:
+    try:
+        api_status = "✅ Connected" if api_client.health_check() else "❌ Disconnected"
+        st.markdown(f'<div style="color: #a0aec0; font-size: 0.85rem; padding-top: 0.5rem; text-align: right;">{api_status}</div>', unsafe_allow_html=True)
+    except:
+        st.markdown('<div style="color: #a0aec0; font-size: 0.85rem; padding-top: 0.5rem; text-align: right;">❌ Error</div>', unsafe_allow_html=True)
+    if st.button("🔄 Clear", key="clear_session_top", use_container_width=True):
+        for key in list(st.session_state.keys()):
+            del st.session_state[key]
+        st.rerun()
+
+st.markdown('</div>', unsafe_allow_html=True)
+
+page = st.session_state.current_page
 
 
-# Main content based on selected page
+
+
 if page == "🏠 Home / Upload":
     st.header("📤 Upload Product Data")
     st.markdown("Upload your supplier Excel file to get started with product analysis.")
@@ -258,7 +289,7 @@ if page == "🏠 Home / Upload":
                     st.error(f"❌ Upload failed: {str(e)}")
                     logger.error(f"Upload error: {e}", exc_info=True)
         
-        # Validate button (only if file is uploaded)
+
         if st.session_state.file_id:
             st.markdown("---")
             st.subheader("🔍 Schema Validation")
@@ -276,7 +307,7 @@ if page == "🏠 Home / Upload":
                         else:
                             st.error(f"❌ Schema validation failed with {len(validation_result['errors'])} errors")
                         
-                        # Display validation details
+                      
                         with st.expander("📋 Validation Details", expanded=not validation_result["is_valid"]):
                             col1, col2 = st.columns(2)
                             
@@ -297,19 +328,19 @@ if page == "🏠 Home / Upload":
                                     for field in validation_result["missing_optional_fields"]:
                                         st.write(f"  - {field}")
                             
-                            # Errors
+                            
                             if validation_result.get("errors"):
                                 st.write("**Errors**")
                                 for error in validation_result["errors"]:
                                     st.error(f"- {error.get('field', 'Unknown')}: {error.get('message', 'Unknown error')}")
                             
-                            # Warnings
+                           
                             if validation_result.get("warnings"):
                                 st.write("**Warnings**")
                                 for warning in validation_result["warnings"]:
                                     st.warning(f"- {warning}")
                         
-                        # Process button (only if valid)
+                        
                         if validation_result["is_valid"]:
                             st.markdown("---")
                             if st.button("🚀 Process Products", type="primary", width="stretch"):
@@ -349,7 +380,7 @@ elif page == "📊 Dashboard":
     else:
         results = st.session_state.results
         
-        # Summary metrics
+       
         st.subheader("📈 Summary")
         col1, col2, col3, col4 = st.columns(4)
         
@@ -371,10 +402,10 @@ elif page == "📊 Dashboard":
         
         st.markdown("---")
         
-        # Products table
+      
         st.subheader("📋 Ranked Products")
         
-        # Convert to DataFrame
+       
         df_data = []
         for result in results.get("results", []):
             df_data.append({
@@ -396,7 +427,7 @@ elif page == "📊 Dashboard":
         else:
             df = pd.DataFrame(df_data)
             
-            # Filters
+            
             col1, col2, col3 = st.columns(3)
             with col1:
                 viability_options = ["High", "Medium", "Low"]
@@ -415,7 +446,7 @@ elif page == "📊 Dashboard":
             with col3:
                 search_sku = st.text_input("Search SKU", "")
             
-            # Apply filters
+           
             filtered_df = df.copy()
             if viability_filter:
                 filtered_df = filtered_df[filtered_df["Viability Class"].isin(viability_filter)]
@@ -424,7 +455,7 @@ elif page == "📊 Dashboard":
             if search_sku:
                 filtered_df = filtered_df[filtered_df["SKU"].str.contains(search_sku, case=False, na=False)]
             
-            # Display table
+           
             st.dataframe(
                 filtered_df,
                 width="stretch",
@@ -434,7 +465,7 @@ elif page == "📊 Dashboard":
             
             st.caption(f"Showing {len(filtered_df)} of {len(df)} products")
             
-            # Product selection for detail view
+           
             st.markdown("---")
             st.subheader("🔍 View Product Details")
             
@@ -465,7 +496,7 @@ elif page == "🔍 Product Detail":
         results = st.session_state.results
         selected_sku = st.session_state.selected_sku
         
-        # Find selected product
+      
         product = None
         for r in results.get("results", []):
             if r.get("sku") == selected_sku:
@@ -475,7 +506,7 @@ elif page == "🔍 Product Detail":
         if product is None:
             st.error("Product not found")
         else:
-            # Product overview
+          
             col1, col2 = st.columns([2, 1])
             
             with col1:
@@ -484,7 +515,7 @@ elif page == "🔍 Product Detail":
                 st.write(f"**Rank:** #{product.get('rank', 'N/A')}")
             
             with col2:
-                # Viability badge
+              
                 viability_class = product.get("viability_class", "low").lower()
                 viability_color = {
                     "high": "🟢",
@@ -522,7 +553,7 @@ elif page == "🔍 Product Detail":
             
             st.markdown("---")
             
-            # Pricing details
+          
             st.subheader("💰 Pricing Analysis")
             col1, col2, col3 = st.columns(3)
             
@@ -546,7 +577,7 @@ elif page == "🔍 Product Detail":
             
             st.markdown("---")
             
-            # Risk analysis
+    
             st.subheader("⚠️ Risk Analysis")
             st.write(f"**Risk Score:** {product.get('stockout_risk_score', 0.0):.2%}")
             st.write(f"**Risk Level:** {product.get('stockout_risk_level', 'low').title()}")
@@ -557,20 +588,19 @@ elif page == "🔍 Product Detail":
             
             st.markdown("---")
             
-            # SHAP explanations (if available)
             st.subheader("📊 Feature Importance (SHAP)")
             st.info("💡 SHAP values show how each feature contributes to the viability prediction")
             
-            # Get SHAP values from product data
+         
             shap_values = product.get("shap_values")
             base_value = product.get("base_value")
             
             if shap_values and isinstance(shap_values, dict):
-                # Convert SHAP values to sorted list for visualization
+              
                 shap_items = list(shap_values.items())
                 shap_items.sort(key=lambda x: abs(x[1]), reverse=True)
                 
-                # Take top 15 features
+              
                 top_features = shap_items[:15]
                 
                 if top_features:
@@ -578,7 +608,7 @@ elif page == "🔍 Product Detail":
                     feature_names = [item[0] for item in top_features]
                     feature_values = [item[1] for item in top_features]
                     
-                    # Create color mapping (positive = green, negative = red)
+                   
                     colors = ['#2ecc71' if v >= 0 else '#e74c3c' for v in feature_values]
                     
                     # Create horizontal bar chart
@@ -606,11 +636,10 @@ elif page == "🔍 Product Detail":
                     
                     st.plotly_chart(fig, width="stretch")
                     
-                    # Show base value if available
+                  
                     if base_value is not None:
                         st.caption(f"Base value (expected output): {base_value:.4f}")
                     
-                    # Show feature breakdown table
                     with st.expander("📋 View All Feature Contributions"):
                         shap_df = pd.DataFrame({
                             "Feature": feature_names,
@@ -621,15 +650,15 @@ elif page == "🔍 Product Detail":
                 else:
                     st.warning("No SHAP values available for this product.")
             else:
-                # Try to fetch SHAP values from API if not in product data
+                
                 try:
-                    # Call predict_viability endpoint to get SHAP values
+                   
                     viability_response = api_client.predict_viability([product])
                     if viability_response and "predictions" in viability_response:
                         pred = viability_response["predictions"][0]
                         if pred.get("shap_values"):
                             st.info("🔄 Fetching SHAP values from API...")
-                            # Re-render with SHAP values
+                           
                             product["shap_values"] = pred["shap_values"]
                             product["base_value"] = pred.get("base_value")
                             st.rerun()
@@ -703,7 +732,7 @@ elif page == "📈 Product Insights":
             breakdown_df = pd.DataFrame(breakdown_entries)
             breakdown_df = breakdown_df[breakdown_df["Value"] > 0]
             
-            # Ensure at least two slices for better visual contrast
+         
             if len(breakdown_df) < 2:
                 estimated_cost = max(recommended_price - profit_component, 0)
                 if estimated_cost <= 0 and recommended_price > 0:
@@ -780,11 +809,10 @@ elif page == "📥 Export CSV":
     else:
         st.markdown("Export your analysis results to CSV for import into Amazon, Shopify, or your ERP system.")
         
-        # Check if results are available locally for preview
         if st.session_state.results:
             results = st.session_state.results
             
-            # Prepare CSV data for preview
+          
             csv_data = []
             for result in results.get("results", []):
                 csv_data.append({
@@ -804,7 +832,7 @@ elif page == "📥 Export CSV":
             if csv_data:
                 df_export = pd.DataFrame(csv_data)
                 
-                # Display preview
+              
                 st.subheader("📋 Export Preview")
                 st.dataframe(df_export.head(10), width="stretch")
                 st.caption(f"Total rows: {len(df_export)}")
@@ -814,19 +842,18 @@ elif page == "📥 Export CSV":
             st.info("💡 Results will be fetched from the server when you export.")
         
         st.markdown("---")
-        
-        # Export button that calls the API endpoint
+      
         if st.button("📥 Export CSV from Server", type="primary", width="stretch"):
             with st.spinner("Generating CSV file..."):
                 try:
-                    # Call API endpoint to get CSV
+                  
                     csv_bytes = api_client.export_csv(st.session_state.file_id)
                     
-                    # Generate filename
+                  
                     file_id_short = st.session_state.file_id[:8] if st.session_state.file_id else "unknown"
                     filename = f"dropsmart_results_{file_id_short}.csv"
                     
-                    # Create download button with the CSV data
+
                     st.download_button(
                         label="📥 Download CSV File",
                         data=csv_bytes,
@@ -845,13 +872,13 @@ elif page == "📥 Export CSV":
                     logger.error(f"CSV export error: {e}", exc_info=True)
                     st.info("💡 Make sure you have processed the file first. Go to **Home / Upload** and click 'Process Products'.")
         
-        # Alternative: Direct download link (if results are cached)
+
         if st.session_state.results:
             st.markdown("---")
             st.subheader("Alternative: Download from Cached Results")
             st.caption("This uses locally cached results. For the latest data, use the server export above.")
             
-            # Prepare CSV from cached results
+
             csv_data = []
             for result in st.session_state.results.get("results", []):
                 csv_data.append({
@@ -885,6 +912,6 @@ elif page == "📥 Export CSV":
                     key="csv_download_cache"
                 )
 
-# Footer
+
 st.markdown("---")
-st.caption(f"DropSmart v{config.PAGE_TITLE} | API: {config.API_BASE_URL}")
+st.caption(f"Product Intelligence v{config.PAGE_TITLE} | API: {config.API_BASE_URL}")

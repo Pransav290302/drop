@@ -1,4 +1,4 @@
-"""FastAPI route handlers"""
+
 
 import uuid
 import time
@@ -34,19 +34,14 @@ from backend.app.models.schemas import (
 
 router = APIRouter()
 
-# In-memory storage for demo (replace with database in production)
+
 file_storage: Dict[str, Dict[str, Any]] = {}
 results_storage: Dict[str, Dict[str, Any]] = {}
 
 
 @router.post("/upload", response_model=UploadResponse, tags=["upload"])
 async def upload_file(file: UploadFile = File(...)):
-    """
-    Upload Excel file with product data
-    
-    Accepts Excel files (.xlsx, .xls) and stores them for processing.
-    Parses to DataFrame and stores in memory/temp storage.
-    """
+   
     # Validate filename exists
     if not file.filename:
         raise HTTPException(
@@ -54,7 +49,7 @@ async def upload_file(file: UploadFile = File(...)):
             detail="Filename is required. Please provide a filename with the file upload."
         )
     
-    # Validate file extension
+
     file_ext = Path(file.filename).suffix.lower()
     if not file_ext:
         raise HTTPException(
@@ -68,7 +63,7 @@ async def upload_file(file: UploadFile = File(...)):
             detail=f"Invalid file type '{file_ext}'. Allowed extensions: {', '.join(settings.allowed_extensions)}"
         )
     
-    # Validate file size
+
     contents = await file.read()
     if len(contents) == 0:
         raise HTTPException(
@@ -82,20 +77,20 @@ async def upload_file(file: UploadFile = File(...)):
             detail=f"File too large ({len(contents) / 1024 / 1024:.2f}MB). Maximum size: {settings.max_file_size_mb}MB"
         )
     
-    # Generate file ID
+   
     file_id = str(uuid.uuid4())
     
-    # Save file
+   
     file_path = settings.raw_data_dir / f"{file_id}{file_ext}"
     with open(file_path, "wb") as f:
         f.write(contents)
     
-    # Parse to DataFrame
+   
     try:
         df = pd.read_excel(file_path, engine='openpyxl')
         total_rows = len(df)
         
-        # Store DataFrame in memory (for demo - use database in production)
+       
         file_storage[file_id] = {
             "filename": file.filename,
             "file_path": str(file_path),
@@ -120,22 +115,17 @@ async def upload_file(file: UploadFile = File(...)):
 
 @router.post("/validate", response_model=ValidationResponse, tags=["validation"])
 async def validate_schema(request: ValidationRequest):
-    """
-    Validate Excel file schema
     
-    Checks if uploaded file has all required fields and valid data types.
-    Returns error messages if columns are missing.
-    """
     if request.file_id not in file_storage:
         raise HTTPException(status_code=404, detail="File not found")
     
     file_info = file_storage[request.file_id]
     
-    # Get DataFrame from storage
+  
     if "dataframe" in file_info:
         df = file_info["dataframe"]
     else:
-        # Fallback: read from file
+       
         file_path = Path(file_info["file_path"])
         try:
             df = pd.read_excel(file_path, engine='openpyxl')
@@ -173,7 +163,7 @@ async def validate_schema(request: ValidationRequest):
             missing_optional.append(field)
             warnings.append(f"Optional field '{field}' is missing")
     
-    # Validate data types for existing fields
+    
     if "cost" in df.columns:
         if not pd.api.types.is_numeric_dtype(df["cost"]):
             errors.append(ValidationError(
@@ -213,16 +203,11 @@ async def predict_viability(
     request: PredictViabilityRequest,
     top_k: Optional[int] = Query(None, description="Return top K products by viability score")
 ):
-    """
-    Predict product viability scores
-    
-    Returns probability of sale within 30 days for each product.
-    Calls viability model and returns probabilities + top-K.
-    """
+   
     start_time = time.time()
     
     try:
-        # Convert products to list of dicts
+    
         products = [product.dict() for product in request.products]
         
         # Call pipeline service
@@ -253,16 +238,11 @@ async def predict_viability(
 
 @router.post("/optimize_price", response_model=PriceOptimizationResponse, tags=["optimization"])
 async def optimize_price(request: OptimizePriceRequest):
-    """
-    Optimize product prices
-    
-    Returns recommended prices that maximize expected profit while respecting constraints.
-    Calls price optimizer and returns recommended price.
-    """
+ 
     start_time = time.time()
     
     try:
-        # Convert products to list of dicts
+       
         products = [product.dict() for product in request.products]
         
         # Call pipeline service
@@ -303,16 +283,11 @@ async def optimize_price(request: OptimizePriceRequest):
 
 @router.post("/stockout_risk", response_model=StockoutRiskResponse, tags=["stockout"])
 async def predict_stockout_risk(request: StockoutRiskRequest):
-    """
-    Predict stockout and lead-time risk
-    
-    Returns risk scores and factors for each product.
-    Calls risk model.
-    """
+   
     start_time = time.time()
     
     try:
-        # Convert products to list of dicts
+
         products = [product.dict() for product in request.products]
         
         # Call pipeline service
@@ -352,16 +327,11 @@ async def predict_stockout_risk(request: StockoutRiskRequest):
 
 @router.get("/get_results", response_model=ResultsResponse, tags=["results"])
 async def get_results(file_id: str):
-    """
-    Get complete analysis results for uploaded file
     
-    Returns ranked list of products with all predictions and optimizations.
-    Returns combined table with viability, price, risk, cluster.
-    """
     if file_id not in file_storage:
         raise HTTPException(status_code=404, detail="File not found")
     
-    # Check if results are cached
+  
     if file_id in results_storage:
         return results_storage[file_id]
     
@@ -371,7 +341,7 @@ async def get_results(file_id: str):
     if "dataframe" in file_info:
         df = file_info["dataframe"].copy()
     else:
-        # Fallback: read from file
+       
         file_path = Path(file_info["file_path"])
         try:
             df = pd.read_excel(file_path, engine='openpyxl')
@@ -406,7 +376,7 @@ async def get_results(file_id: str):
                 rank=int(row.get("rank", idx + 1)),
             ))
         
-        # Create response
+        
         response = ResultsResponse(
             results=results,
             total_products=len(results),
@@ -428,16 +398,11 @@ async def get_results(file_id: str):
 
 @router.get("/export_csv", tags=["export"])
 async def export_csv(file_id: str):
-    """
-    Export ranked results as CSV file
-    
-    Returns a downloadable CSV file with all product analysis results.
-    Ready for import into Amazon, Shopify, or ERP systems.
-    """
+   
     if file_id not in file_storage:
         raise HTTPException(status_code=404, detail="File not found")
     
-    # Get results (use cached if available, otherwise process)
+
     if file_id in results_storage:
         results = results_storage[file_id]
     else:
@@ -455,7 +420,7 @@ async def export_csv(file_id: str):
     else:
         results_dict = results
     
-    # Prepare CSV data
+  
     csv_data = []
     results_list = results_dict.get("results", [])
     
@@ -492,14 +457,14 @@ async def export_csv(file_id: str):
     if not csv_data:
         raise HTTPException(status_code=404, detail="No results available for export")
     
-    # Create DataFrame
+   
     df = pd.DataFrame(csv_data)
     
     # Convert to CSV string
     csv_string = df.to_csv(index=False)
     csv_bytes = csv_string.encode('utf-8')
     
-    # Get filename
+  
     file_info = file_storage[file_id]
     filename = f"dropsmart_results_{file_id[:8]}.csv"
     

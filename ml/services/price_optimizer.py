@@ -1,8 +1,3 @@
-"""
-Price Optimizer V3 — Compatible with ConversionModel V3
-Works with LogisticRegression conversion model using FEATURES list.
-"""
-
 import numpy as np
 
 
@@ -18,12 +13,10 @@ class PriceOptimizer:
         self.conversion_model = conversion_model
         self.min_margin_percent = min_margin_percent
         self.enforce_map = enforce_map
-        self.step = step               # price step = +0.10 USD
-        self.max_change = max_change   # max 25% price increase
+        self.step = step              
+        self.max_change = max_change   
 
-    # -----------------------------------------------------------
-    # CORE HELPERS
-    # -----------------------------------------------------------
+  
 
     def compute_margin_percent(self, price, landed_cost):
         if price <= 0:
@@ -34,9 +27,6 @@ class PriceOptimizer:
         margin = self.compute_margin_percent(price, landed_cost)
         return margin * conversion_prob * price
 
-    # -----------------------------------------------------------
-    # PRICE OPTIMIZATION FOR A SINGLE PRODUCT
-    # -----------------------------------------------------------
 
     def optimize_single(self, product: dict) -> dict:
 
@@ -55,7 +45,7 @@ class PriceOptimizer:
             map_price,                                    # MAP constraint
         )
 
-        max_price = current_price * (1 + self.max_change)  # e.g., +25%
+        max_price = current_price * (1 + self.max_change) 
         if max_price <= min_price:
             max_price = min_price + self.step
 
@@ -68,7 +58,7 @@ class PriceOptimizer:
 
         for price in candidate_prices:
 
-            # ⭕ Call ConversionModel V3 prediction function
+           
             conv_prob = self.conversion_model.predict_conversion_probability(
                 product=product,
                 price=price
@@ -101,15 +91,13 @@ class PriceOptimizer:
             self.compute_margin_percent(best_price, landed_cost) * 100, 2
         )
 
-        # Constraint flags
+       
         result["map_constraint_applied"] = best_price <= map_price if self.enforce_map else False
         result["min_margin_constraint_applied"] = best_price <= landed_cost * (1 + self.min_margin_percent)
 
         return result
 
-    # -----------------------------------------------------------
-    # BATCH PROCESSING
-    # -----------------------------------------------------------
+
 
     def optimize_batch(self, products: list) -> list:
         results = []

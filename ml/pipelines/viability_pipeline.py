@@ -1,8 +1,3 @@
-"""
-Viability Pipeline — CLEAN VERSION (B2-A)
-Fully aligned with new ViabilityModel (RandomForest + SHAP)
-"""
-
 import logging
 from pathlib import Path
 from typing import Dict, Any, Optional, Tuple, List, Union
@@ -27,25 +22,17 @@ logger = logging.getLogger(__name__)
 
 
 class ViabilityPipeline:
-    """
-    Clean viability pipeline for:
-    - Training
-    - Evaluation
-    - Batch predictions
-    - SHAP explanations
-    """
+   
 
     def __init__(
         self,
         config: Optional[Dict[str, Any]] = None
     ):
-        """Initialize pipeline with NEW course-aligned ViabilityModel."""
+   
         self.model = ViabilityModel(config=config)
         self.evaluation_metrics: Dict[str, Any] = {}
 
-    # =========================================================
-    # DATA PREPARATION
-    # =========================================================
+
     def prepare_data(
         self,
         df: pd.DataFrame,
@@ -70,17 +57,13 @@ class ViabilityPipeline:
         logger.info(f"Train size: {len(X_train)}, Test size: {len(X_test)}")
         return X_train, y_train, X_test, y_test
 
-    # =========================================================
-    # TRAINING
-    # =========================================================
+  
     def train(self, X_train: pd.DataFrame, y_train: pd.Series) -> None:
         logger.info("Training viability model...")
         self.model.train(X_train, y_train)
         logger.info("Training complete.")
 
-    # =========================================================
-    # EVALUATION
-    # =========================================================
+   
     def evaluate(self, X_test: pd.DataFrame, y_test: pd.Series) -> Dict[str, Any]:
 
         y_pred = self.model.predict(X_test)
@@ -131,9 +114,7 @@ class ViabilityPipeline:
 
         return metrics
 
-    # =========================================================
-    # PREDICTION + SHAP EXPLANATION
-    # =========================================================
+  
     def predict(
         self,
         X: pd.DataFrame,
@@ -158,9 +139,7 @@ class ViabilityPipeline:
 
         return output
 
-    # =========================================================
-    # BATCH FORMATTER
-    # =========================================================
+ 
     def predict_batch(
         self,
         items: List[Dict[str, Any]],
@@ -182,9 +161,7 @@ class ViabilityPipeline:
 
         return formatted
 
-    # =========================================================
-    # SAVE / LOAD
-    # =========================================================
+ 
     def save_model(self, filepath: Union[str, Path]):
         self.model.save(filepath)
 

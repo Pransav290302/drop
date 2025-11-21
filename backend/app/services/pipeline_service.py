@@ -1,5 +1,3 @@
-"""ML Pipeline service for orchestrating model calls"""
-
 import logging
 from pathlib import Path
 from typing import Dict, Any, Optional, List
@@ -9,18 +7,16 @@ import pandas as pd
 
 from backend.app.core.config import settings
 
-# ML model imports
+
 from ml.models.viability_model import ViabilityModel
 from ml.models.price_model import ConversionModel
 from ml.models.stockout_model import StockoutRiskModel
 
-# NEW TF-IDF + KMeans clustering model (correct import)
 from ml.models.clustering_model import ClusteringModel
 
 from ml.services.price_optimizer import PriceOptimizer
 from ml.pipelines.viability_pipeline import ViabilityPipeline  # noqa
 
-# Data processing imports
 from ml.data.normalization import DataNormalizer
 from ml.features.engineering import engineer_features
 from ml.config import get_schema_config
@@ -29,13 +25,7 @@ logger = logging.getLogger(__name__)
 
 
 class MLPipelineService:
-    """
-    Service orchestrating:
-    - viability prediction
-    - price optimization
-    - stockout risk
-    - TF-IDF clustering
-    """
+    
 
     def __init__(self):
         self.viability_model: Optional[ViabilityModel] = None
@@ -58,10 +48,7 @@ class MLPipelineService:
 
         self._load_models()
 
-    # ------------------------------------------------------------------
-    # FIXED: text builder (fully replaces prepare_texts_for_clustering)
-    # ------------------------------------------------------------------
-
+ 
     @staticmethod
     def _build_product_text(product: Dict[str, Any]) -> str:
         parts: List[str] = []
@@ -81,9 +68,6 @@ class MLPipelineService:
 
         return " ".join(parts).lower()
 
-    # ------------------------------------------------------------------
-    # LOAD MODELS
-    # ------------------------------------------------------------------
 
     def _load_models(self) -> None:
 
@@ -124,9 +108,7 @@ class MLPipelineService:
         except Exception as e:
             logger.error(f"Failed to load clustering model: {e}")
 
-    # ------------------------------------------------------------------
-    # FEATURE PREPARATION
-    # ------------------------------------------------------------------
+
 
     def prepare_features(self, df: pd.DataFrame) -> pd.DataFrame:
         features_df = df.copy()
@@ -169,9 +151,7 @@ class MLPipelineService:
 
         return features_df
 
-    # ------------------------------------------------------------------
-    # VIABILITY
-    # ------------------------------------------------------------------
+
 
     def predict_viability(self, products, top_k=None):
         if self.viability_model is None:
@@ -201,9 +181,7 @@ class MLPipelineService:
         results.sort(key=lambda r: r["viability_score"], reverse=True)
         return results[:top_k] if top_k else results
 
-    # ------------------------------------------------------------------
-    # PRICE OPTIMIZATION
-    # ------------------------------------------------------------------
+
 
     def optimize_price(self, products, min_margin_percent=0.15, enforce_map=True):
         if self.price_optimizer is None:
@@ -214,9 +192,7 @@ class MLPipelineService:
 
         return self.price_optimizer.optimize_batch(products)
 
-    # ------------------------------------------------------------------
-    # STOCKOUT RISK
-    # ------------------------------------------------------------------
+
 
     def predict_stockout_risk(self, products):
 
@@ -245,9 +221,7 @@ class MLPipelineService:
 
         return results
 
-    # ------------------------------------------------------------------
-    # CLUSTERING (TF-IDF + KMeans)
-    # ------------------------------------------------------------------
+
 
     def get_cluster_assignments(self, products):
 
@@ -262,9 +236,6 @@ class MLPipelineService:
         except Exception:
             return [None] * len(products)
 
-    # ------------------------------------------------------------------
-    # FALLBACK IMPLEMENTATIONS (when models are missing)
-    # ------------------------------------------------------------------
 
     def _fallback_viability(self, df: pd.DataFrame) -> pd.DataFrame:
         """Generate realistic viability scores based on heuristics"""
@@ -279,7 +250,7 @@ class MLPipelineService:
         price = df.get("price", pd.Series([1] * len(df)))
         margin = ((price - landed_cost) / price * 100).fillna(0)
         
-        # Availability score
+       
         availability_map = {
             "in_stock": 0.8,
             "low_stock": 0.5,
@@ -316,7 +287,7 @@ class MLPipelineService:
         return df
 
     def _fallback_price_optimization(self, df: pd.DataFrame) -> pd.DataFrame:
-        """Generate optimized prices based on heuristics"""
+        
         import numpy as np
         
         cost = df.get("cost", pd.Series([0] * len(df)))
@@ -326,22 +297,22 @@ class MLPipelineService:
         
         current_price = df.get("price", landed_cost * 1.2)
         
-        # Target margin: 15-30% depending on viability
+        
         viability_score = df.get("viability_score", pd.Series([0.5] * len(df)))
         target_margin = 0.15 + (viability_score * 0.15)  # 15% to 30%
         
-        # Calculate recommended price
+        
         recommended_price = landed_cost / (1 - target_margin)
         
-        # Add some variation based on current price (but ensure it's different)
+        
         price_adjustment = np.random.uniform(0.92, 1.08, len(df))
         recommended_price = recommended_price * price_adjustment
         
-        # Ensure minimum margin of 10%
+        
         min_price = landed_cost * 1.1
         recommended_price = np.maximum(recommended_price, min_price)
         
-        # Round to 2 decimal places
+        
         recommended_price = np.round(recommended_price, 2)
         
         df["recommended_price"] = recommended_price
@@ -353,7 +324,7 @@ class MLPipelineService:
         """Generate stockout risk scores based on heuristics"""
         import numpy as np
         
-        # Availability-based risk
+        
         availability_map = {
             "in_stock": 0.2,
             "low_stock": 0.6,
@@ -363,11 +334,11 @@ class MLPipelineService:
         availability = df.get("availability", pd.Series(["out_of_stock"] * len(df)))
         availability_risk = availability.map(availability_map).fillna(0.5)
         
-        # Lead time risk (longer = higher risk)
+        
         lead_time = df.get("lead_time_days", pd.Series([30] * len(df))).fillna(30)
         lead_time_risk = np.clip(lead_time / 30.0, 0.1, 1.0)
         
-        # Combine factors
+        
         risk_score = (
             0.6 * availability_risk +
             0.4 * lead_time_risk +
@@ -386,10 +357,10 @@ class MLPipelineService:
         return df
 
     def _fallback_clustering(self, products: List[Dict[str, Any]]) -> List[int]:
-        """Generate cluster IDs based on product name similarity"""
+      
         from collections import defaultdict
         
-        # Simple clustering based on first word of product name
+  
         clusters = defaultdict(list)
         for i, p in enumerate(products):
             name = str(p.get("product_name", "")).lower()
@@ -406,9 +377,7 @@ class MLPipelineService:
         
         return cluster_ids
 
-    # ------------------------------------------------------------------
-    # FULL PIPELINE
-    # ------------------------------------------------------------------
+
 
     def process_complete_pipeline(self, df: pd.DataFrame) -> pd.DataFrame:
 

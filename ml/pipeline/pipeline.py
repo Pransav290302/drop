@@ -1,18 +1,3 @@
-"""
-Complete ML Pipeline for DropSmart
-----------------------------------
-Runs:
-
-✔ ViabilityModel
-✔ ConversionModel
-✔ StockoutRiskModel
-✔ ClusteringModel
-✔ Feature Engineering
-✔ Ranking
-
-This is the master pipeline your FastAPI backend will call.
-"""
-
 import pandas as pd
 import numpy as np
 from pathlib import Path
@@ -29,7 +14,7 @@ logger = logging.getLogger(__name__)
 
 
 class MLPipeline:
-    """End-to-end ML pipeline used by the DropSmart backend."""
+   
 
     def __init__(self, model_dir: str = "data/models"):
         self.model_dir = Path(model_dir)
@@ -42,9 +27,7 @@ class MLPipeline:
 
         self._load_all_models()
 
-    # ----------------------------------------------------------------------
-    # LOAD MODELS
-    # ----------------------------------------------------------------------
+
     def _load_all_models(self):
         logger.info("Loading trained models...")
 
@@ -55,9 +38,7 @@ class MLPipeline:
 
         logger.info("✓ All models loaded successfully")
 
-    # ----------------------------------------------------------------------
-    # FEATURE ENGINEERING
-    # ----------------------------------------------------------------------
+
     def _feature_engineering(self, df: pd.DataFrame) -> pd.DataFrame:
         df = df.copy()
 
@@ -67,13 +48,11 @@ class MLPipeline:
 
         return df
 
-    # ----------------------------------------------------------------------
-    # RUN PIPELINE
-    # ----------------------------------------------------------------------
+
     def run(self, input_file: Path) -> Dict[str, Any]:
         logger.info(f"Running ML Pipeline on: {input_file}")
 
-        # 1️⃣ Load Excel
+       
         df = pd.read_excel(input_file)
         df = self._feature_engineering(df)
 
@@ -86,19 +65,19 @@ class MLPipeline:
         ]
         X = df[FEATURES].fillna(0)
 
-        # 2️⃣ Run predictions
+      
         viability_scores = self.viability_model.predict_proba(X)
         conversion_scores = self.conversion_model.predict_proba(X)
         stockout_scores = self.stockout_model.predict_risk_score(X)
 
-        # 3️⃣ Clustering
+      
         product_texts = (
             df["product_name"].astype(str) + " " + df["description"].astype(str)
         ).tolist()
 
         cluster_ids = self.clustering_model.predict(product_texts)
 
-        # 4️⃣ Ranking
+      
         rank_scores = (
             viability_scores * 0.55 +          # most important
             conversion_scores * 0.30 +
@@ -107,7 +86,7 @@ class MLPipeline:
 
         ranking = np.argsort(-rank_scores)  # descending
 
-        # 5️⃣ Build final result list
+        
         results = []
         for i in range(len(df)):
             results.append({
