@@ -33,45 +33,109 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
-# Custom CSS for better UX
+# ----------- PREMIUM AI REMEMBERED CSS ----------
 st.markdown("""
-    <style>
-    .main-header {
-        font-size: 2.5rem;
-        font-weight: bold;
-        color: #1f77b4;
-        text-align: center;
-        margin-bottom: 1rem;
-    }
-    .sub-header {
-        text-align: center;
-        color: #666;
-        margin-bottom: 2rem;
-    }
-    .metric-card {
-        background-color: #f0f2f6;
-        padding: 1rem;
-        border-radius: 0.5rem;
-        margin: 0.5rem 0;
-    }
-    .success-box {
-        background-color: #d4edda;
-        border: 1px solid #c3e6cb;
-        border-radius: 0.5rem;
-        padding: 1rem;
-        margin: 1rem 0;
-    }
-    .error-box {
-        background-color: #f8d7da;
-        border: 1px solid #f5c6cb;
-        border-radius: 0.5rem;
-        padding: 1rem;
-        margin: 1rem 0;
-    }
-    .stButton>button {
-        width: 100%;
-    }
-    </style>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+.stApp { background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 50%, #0a0e27 100%); font-family: 'Inter',sans-serif;}
+#MainMenu, footer, header {visibility:hidden;}
+.ai-header { background: linear-gradient(135deg,#667eea 0%,#764ba2 100%);padding:2.5rem 2rem; border-radius:1.5rem;margin-bottom:2rem;box-shadow:0 16px 40px #667eea45;text-shadow:0 2px 22px #000a;}
+.ai-header h1 {font-size:2.5rem; font-weight:700; color:white; margin:0;}
+.ai-header p {font-size:1.2rem; color:rgba(255,255,255,0.96); margin:0.5rem 0 0;}
+.sidebar-glass {background:rgba(255,255,255,0.04); border-radius:1.2rem; padding:1rem 1.4rem; box-shadow:0 4px 32px #667eea30;}
+.metric-card, .glass-section, .success-box, .error-box {background:rgba(255,255,255,0.065);backdrop-filter:blur(6px);border-radius:0.9rem;padding:1.2rem;margin:0.6rem 0;box-shadow:0 2px 16px #2222;}
+.success-box {border:1.5px solid #43e97bb7;}
+.error-box {border:1.5px solid #e74c3cbb;}
+.stButton>button {border-radius:0.6rem;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:#fff;font-weight:600;}
+.stButton>button:hover {transform:translateY(-2px);box-shadow:0 8px 28px #667eeaba;}
+.stat-card {background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);border-radius:1rem;padding:1.2rem 1.5rem;color:white;margin:0.5em 0;box-shadow:0 6px 18px #667eea22;}
+.stat-card h3 {font-weight:700; font-size:1.7rem;}
+.stMetric label {color:#a0aec0 !important;}
+.stMetric [data-testid="stMetricValue"] {font-weight:700; color:white !important;}
+.stDataFrame {background: rgba(255,255,255,0.04)!important; border-radius:1rem;}
+select, .stSelectbox>div>div>div {background:rgba(255,255,255,0.08)!important;color:white!important;}
+
+.hero-header {
+    background: linear-gradient(135deg, #1c1f45 0%, #202a5c 46%, #1c1f45 100%);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 1.5rem;
+    padding: 1.5rem 2rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 20px 45px rgba(18, 21, 56, 0.55);
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+.hero-logo {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+.hero-logo .logo-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 16px;
+    background: linear-gradient(145deg, #667eea, #764ba2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.8rem;
+    box-shadow: 0 12px 24px rgba(102,126,234,0.45);
+}
+.hero-logo .logo-text {
+    font-family: 'Inter', sans-serif;
+}
+.hero-logo .logo-title {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: #ffffff;
+}
+.hero-logo .logo-subtitle {
+    color: rgba(255,255,255,0.75);
+    font-size: 0.95rem;
+}
+.nav-radio div[data-baseweb="radio"] {
+    display: flex !important;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+.nav-radio label {
+    background: rgba(255,255,255,0.04);
+    border-radius: 999px;
+    padding: 0.45rem 1.3rem;
+    border: 1px solid rgba(255,255,255,0.08);
+    transition: all 0.2s ease;
+    cursor: pointer;
+    box-shadow: inset 0 0 0 0 rgba(255,255,255,0.2);
+}
+.nav-radio label:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.35);
+    border-color: rgba(255,255,255,0.25);
+}
+.nav-radio label:has(div[role="radio"][aria-checked="true"]) {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-color: transparent;
+    box-shadow: 0 10px 25px rgba(118,75,162,0.4);
+}
+.nav-radio label p {
+    margin: 0 !important;
+    color: #d3d8ff !important;
+}
+.nav-radio label:has(div[role="radio"][aria-checked="true"]) p {
+    color: #ffffff !important;
+    font-weight: 600;
+}
+</style>
+""", unsafe_allow_html=True)
+# -------- END CSS --------
+
+# ---- HEADER ----
+st.markdown("""
+<div class="ai-header">
+    <h1>🤖 DropSmart</h1>
+    <p>Product & Price Intelligence for Dropshipping Sellers</p>
+</div>
 """, unsafe_allow_html=True)
 
 # Initialize session state
@@ -86,50 +150,50 @@ if "results" not in st.session_state:
 if "selected_sku" not in st.session_state:
     st.session_state.selected_sku = None
 
-# Main header
-st.markdown('<div class="main-header">📦 DropSmart</div>', unsafe_allow_html=True)
-st.markdown('<div class="sub-header">Product & Price Intelligence for Dropshipping Sellers</div>', unsafe_allow_html=True)
 
-# Sidebar navigation
-with st.sidebar:
-    st.title("Navigation")
-    st.markdown("---")
+# Top navigation bar
+nav_options = [
+    "🏠 Home / Upload",
+    "📊 Dashboard",
+    "🔍 Product Detail",
+    "📈 Product Insights",
+    "📥 Export CSV",
+]
+
+with st.container():
+    nav_col, status_col = st.columns([4, 1.5])
     
-    page = st.radio(
-        "Select Page",
-        ["🏠 Home / Upload", "📊 Dashboard", "🔍 Product Detail", "📥 Export CSV"],
-        key="page_selector"
-    )
+    with nav_col:
+        st.markdown("### Navigation")
+        st.markdown('<div class="nav-radio">', unsafe_allow_html=True)
+        page = st.radio(
+            "Select Page",
+            nav_options,
+            key="page_selector",
+            horizontal=True,
+            label_visibility="collapsed",
+        )
+        st.markdown('</div>', unsafe_allow_html=True)
     
-    st.markdown("---")
-    st.markdown("### About")
-    st.markdown("""
-    **DropSmart** helps you:
-    - ✅ Identify high-viability products
-    - 💰 Optimize pricing strategies
-    - ⚠️ Predict stockout risks
-    - 📈 Make data-driven decisions
-    """)
-    
-    st.markdown("---")
-    
-    # API status
-    try:
-        if api_client.health_check():
-            st.success("✅ API Connected")
-        else:
-            st.error("❌ API Disconnected")
-            st.info(f"API URL: {config.API_BASE_URL}")
-    except Exception as e:
-        st.error("❌ API Connection Error")
-        st.info(f"API URL: {config.API_BASE_URL}")
-        logger.error(f"API health check failed: {e}")
-    
-    # Clear session button
-    if st.button("🔄 Clear Session"):
-        for key in list(st.session_state.keys()):
-            del st.session_state[key]
-        st.rerun()
+    with status_col:
+        st.markdown("### Status")
+        try:
+            if api_client.health_check():
+                st.success("✅ API Connected")
+            else:
+                st.error("❌ API Disconnected")
+                st.caption(f"API URL: {config.API_BASE_URL}")
+        except Exception as e:
+            st.error("❌ API Connection Error")
+            st.caption(f"API URL: {config.API_BASE_URL}")
+            logger.error(f"API health check failed: {e}")
+        
+        if st.button("🔄 Clear Session", key="clear_session_top"):
+            for key in list(st.session_state.keys()):
+                del st.session_state[key]
+            st.rerun()
+
+
 
 # Main content based on selected page
 if page == "🏠 Home / Upload":
@@ -157,7 +221,7 @@ if page == "🏠 Home / Upload":
             st.metric("Type", uploaded_file.type or "application/vnd.ms-excel")
         
         # Upload button
-        if st.button("📤 Upload to Server", type="primary", use_container_width=True):
+        if st.button("📤 Upload to Server", type="primary", width="stretch"):
             with st.spinner("Uploading file..."):
                 try:
                     # Validate filename
@@ -199,7 +263,7 @@ if page == "🏠 Home / Upload":
             st.markdown("---")
             st.subheader("🔍 Schema Validation")
             
-            if st.button("✅ Validate Schema", type="primary", use_container_width=True):
+            if st.button("✅ Validate Schema", type="primary", width="stretch"):
                 with st.spinner("Validating schema..."):
                     try:
                         validation_result = api_client.validate_schema(st.session_state.file_id)
@@ -248,7 +312,7 @@ if page == "🏠 Home / Upload":
                         # Process button (only if valid)
                         if validation_result["is_valid"]:
                             st.markdown("---")
-                            if st.button("🚀 Process Products", type="primary", use_container_width=True):
+                            if st.button("🚀 Process Products", type="primary", width="stretch"):
                                 with st.spinner("Processing products with ML models... This may take a moment."):
                                     try:
                                         results = api_client.get_results(st.session_state.file_id)
@@ -363,7 +427,7 @@ elif page == "📊 Dashboard":
             # Display table
             st.dataframe(
                 filtered_df,
-                use_container_width=True,
+                width="stretch",
                 height=400,
                 hide_index=True
             )
@@ -540,7 +604,7 @@ elif page == "🔍 Product Detail":
                         margin=dict(l=150, r=50, t=50, b=50)
                     )
                     
-                    st.plotly_chart(fig, use_container_width=True)
+                    st.plotly_chart(fig, width="stretch")
                     
                     # Show base value if available
                     if base_value is not None:
@@ -553,7 +617,7 @@ elif page == "🔍 Product Detail":
                             "SHAP Value": feature_values,
                             "Impact": ["Positive" if v >= 0 else "Negative" for v in feature_values]
                         })
-                        st.dataframe(shap_df, use_container_width=True)
+                        st.dataframe(shap_df, width="stretch")
                 else:
                     st.warning("No SHAP values available for this product.")
             else:
@@ -576,6 +640,136 @@ elif page == "🔍 Product Detail":
                 except Exception as e:
                     logger.warning(f"Failed to fetch SHAP values: {e}")
                     st.info("SHAP values are not available for this product. The model may not support SHAP explanations.")
+
+elif page == "📈 Product Insights":
+    st.header("📈 Product Insights Dashboard")
+    st.markdown("Visualize cost structure and performance metrics for any processed product.")
+    
+    if st.session_state.results is None:
+        st.warning("⚠️ No results available. Please process a file first from the Home page.")
+    else:
+        product_entries = st.session_state.results.get("results", [])
+        if not product_entries:
+            st.info("No products available yet. Upload and process a file to unlock insights.")
+        else:
+            product_options = {
+                f"{item.get('sku', 'SKU')} — {item.get('product_name', 'Product')}": item
+                for item in product_entries
+            }
+            
+            selected_label = st.selectbox(
+                "Select a product to visualize",
+                list(product_options.keys()),
+                key="insights_product_selector"
+            )
+            selected_product = product_options[selected_label]
+            
+            viability_score = float(selected_product.get("viability_score", 0) or 0)
+            stockout_score = float(selected_product.get("stockout_risk_score", 0) or 0)
+            margin_percent = float(selected_product.get("margin_percent", 0) or 0)
+            
+            col_a, col_b, col_c = st.columns(3)
+            with col_a:
+                st.metric(
+                    "Viability Score",
+                    f"{viability_score:.2f}",
+                    selected_product.get("viability_class", "low").title()
+                )
+            with col_b:
+                st.metric(
+                    "Stockout Risk",
+                    f"{stockout_score:.2f}",
+                    selected_product.get("stockout_risk_level", "low").title()
+                )
+            with col_c:
+                st.metric("Margin %", f"{margin_percent:.2f}%")
+            
+            cost = float(selected_product.get("cost", 0) or 0)
+            shipping = float(selected_product.get("shipping_cost", 0) or 0)
+            duties = float(selected_product.get("duties", 0) or 0)
+            recommended_price = float(
+                selected_product.get("recommended_price",
+                                     selected_product.get("current_price", 0)) or 0
+            )
+            landed_cost = cost + shipping + duties
+            profit_component = max(recommended_price - landed_cost, 0)
+            
+            breakdown_entries = [
+                {"Component": "Product Cost", "Value": max(cost, 0)},
+                {"Component": "Shipping", "Value": max(shipping, 0)},
+                {"Component": "Duties", "Value": max(duties, 0)},
+                {"Component": "Profit (Recommended Price)", "Value": profit_component},
+            ]
+            breakdown_df = pd.DataFrame(breakdown_entries)
+            breakdown_df = breakdown_df[breakdown_df["Value"] > 0]
+            
+            # Ensure at least two slices for better visual contrast
+            if len(breakdown_df) < 2:
+                estimated_cost = max(recommended_price - profit_component, 0)
+                if estimated_cost <= 0 and recommended_price > 0:
+                    estimated_cost = max(
+                        recommended_price * (1 - (margin_percent / 100 if margin_percent else 0)),
+                        0
+                    )
+                
+                if estimated_cost > 0:
+                    breakdown_df = pd.DataFrame([
+                        {"Component": "Landed Cost (Est.)", "Value": estimated_cost},
+                        {"Component": "Profit (Recommended Price)", "Value": max(profit_component, 0.01)},
+                    ])
+                elif recommended_price > 0:
+                    breakdown_df = pd.DataFrame([
+                        {"Component": "Revenue", "Value": recommended_price * 0.5},
+                        {"Component": "Profit (Recommended Price)", "Value": recommended_price * 0.5},
+                    ])
+                else:
+                    breakdown_df = pd.DataFrame([{"Component": "N/A", "Value": 1}])
+            
+            normalized_metrics = pd.DataFrame([
+                {"Metric": "Viability Score", "Value": max(min(viability_score, 1), 0)},
+                {"Metric": "Stockout Risk", "Value": max(min(stockout_score, 1), 0)},
+                {"Metric": "Margin (0-1)", "Value": max(min(margin_percent / 100, 1), 0)},
+            ])
+            
+            col_pie, col_bar = st.columns(2)
+            with col_pie:
+                st.subheader("Cost & Profit Breakdown")
+                pie_colors = (
+                    px.colors.sequential.Purples
+                    + px.colors.sequential.Blues
+                    + px.colors.sequential.Greens
+                )
+                fig_pie = px.pie(
+                    breakdown_df,
+                    names="Component",
+                    values="Value",
+                    hole=0.45,
+                    color_discrete_sequence=pie_colors[: len(breakdown_df)]
+                )
+                fig_pie.update_layout(margin=dict(t=10, b=10, l=10, r=10))
+                st.plotly_chart(fig_pie, width="stretch")
+            
+            with col_bar:
+                st.subheader("Performance Snapshot")
+                fig_bar = px.bar(
+                    normalized_metrics,
+                    x="Metric",
+                    y="Value",
+                    range_y=[0, 1],
+                    color="Metric",
+                    color_discrete_sequence=px.colors.sequential.Magma
+                )
+                fig_bar.update_layout(
+                    showlegend=False,
+                    yaxis=dict(tickformat=".0%", title="Normalized Value"),
+                    margin=dict(t=10, b=40, l=10, r=10)
+                )
+                st.plotly_chart(fig_bar, width="stretch")
+            
+            with st.expander("📋 Product Snapshot"):
+                product_df = pd.DataFrame.from_dict(selected_product, orient="index", columns=["Value"])
+                product_df["Value"] = product_df["Value"].astype("string")
+                st.dataframe(product_df, width="stretch")
 
 elif page == "📥 Export CSV":
     st.header("📥 Export Results to CSV")
@@ -612,7 +806,7 @@ elif page == "📥 Export CSV":
                 
                 # Display preview
                 st.subheader("📋 Export Preview")
-                st.dataframe(df_export.head(10), use_container_width=True)
+                st.dataframe(df_export.head(10), width="stretch")
                 st.caption(f"Total rows: {len(df_export)}")
             else:
                 st.warning("No data available for preview")
@@ -622,7 +816,7 @@ elif page == "📥 Export CSV":
         st.markdown("---")
         
         # Export button that calls the API endpoint
-        if st.button("📥 Export CSV from Server", type="primary", use_container_width=True):
+        if st.button("📥 Export CSV from Server", type="primary", width="stretch"):
             with st.spinner("Generating CSV file..."):
                 try:
                     # Call API endpoint to get CSV
@@ -639,7 +833,7 @@ elif page == "📥 Export CSV":
                         file_name=filename,
                         mime="text/csv",
                         type="primary",
-                        use_container_width=True,
+                        width="stretch",
                         key="csv_download_button"
                     )
                     
@@ -687,7 +881,7 @@ elif page == "📥 Export CSV":
                     data=csv_bytes_local,
                     file_name=filename_local,
                     mime="text/csv",
-                    use_container_width=True,
+                    width="stretch",
                     key="csv_download_cache"
                 )
 
